@@ -3,7 +3,6 @@ import uuid from 'uuid';
 import { Modal, ModalHeader, ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
 import { Tooltip, ButtonToolbar, Button, OverlayTrigger } from 'react-bootstrap';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
-import axios from 'axios';
 import moment from 'moment';
 import Api from '../../Utils/Api';
 
@@ -50,33 +49,19 @@ class AddTime extends Component {
   }
 
   handleSubmit(e){
-    console.log("this submit function started to run");
-    this.setState({newTime: {
+    this.setState({ newTime: {
       type: "daguren",
       language: "und",
       title: uuid.v4(),
-      field_referentie_project:{und:[{target_id:this.props.project.title}]},
-      field_referentie_medewerker:{und:[{target_id:this.refs.employeePicker.value}]},
-      field_datum:{und:[{value:{date:this.state.startDate.format('DD-MM-YYYY')}}]},
-      field_aantal_uur:{und:[{value:this.refs.aantal_uur.value}]},
+      field_referentie_project: {und:[{target_id:this.props.project.title}]},
+      field_referentie_medewerker: {und:[{target_id:this.refs.employee_picker.value}]},
+      field_datum: {und:[{value:{date:this.state.startDate.format('DD-MM-YYYY')}}]},
+      field_aantal_uur: {und:[{value:this.refs.aantal_uur.value}]},
     }}, function(){
-      var token = Api.getToken();
-      var newTime = this.state.newTime;
-      console.log(this.state.newTime);
-      axios({
-        method: 'post',
-        url: '?q=api/node.json',
-        headers: {'X-CSRF-Token': token},
-        data: newTime,
-      })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+      Api.postTime(this.state.newTime);
     });
     e.preventDefault();
+    this.hideModal();
   }
 
   render() {
@@ -119,7 +104,7 @@ class AddTime extends Component {
                       <td><label>Medewerker:</label></td><td><select className="form-control" ref="employee_picker">{employeePicker}</select></td>
                     </tr>
                     <tr>
-                      <td><label>Datum:</label></td>
+                      <td><label>Datum: <span className="badge">Verplicht</span></label></td>
                       <td>
                         <div className="form-group">
                           <DatetimeRangePicker singleDatePicker showDropdowns locale={locale} startDate={this.state.startDate} onEvent={this.handleEvent}>
@@ -152,7 +137,7 @@ class AddTime extends Component {
               </div>
             </ModalBody>
             <ModalFooter>
-              <button className="btn btn-default" onClick={e=>{e.preventDefault();this.hideModal();}}>
+              <button className="btn btn-default" onClick={e=>{e.preventDefault();this.hideModal()}}>
                 <span className="glyphicon glyphicon-remove"></span> Annuleren
               </button>
               <button className='btn btn-success' type="submit" value="Indienen">

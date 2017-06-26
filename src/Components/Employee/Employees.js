@@ -1,33 +1,20 @@
 import React, { Component } from 'react';
 import EmployeeItem from './EmployeeItem';
-import Api from '../../Utils/Api'
 
 class Employees extends Component {
 
   constructor(){
     super();
     this.state = {
-      employees: [],
     }
-  }
-
-  componentDidMount(){
-    Api.getEmployees()
-      .then(function(employees){
-        this.setState(function(){
-          return {
-            employees: employees
-          }
-        })
-      }.bind(this));
   }
 
   render() {
     let employeeItems;
-    if(this.state.employees){
-      employeeItems = this.state.employees.map(employee => {
+    if(this.props.employees){
+      employeeItems = this.props.employees.map(employee => {
         return (
-          <EmployeeItem key={employee.name} employee={employee} />
+          <EmployeeItem key={employee.name} employee={employee} entities={this.props.entities}/>
         );
       });
     }

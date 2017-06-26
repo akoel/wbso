@@ -34,18 +34,6 @@ class AddApplication extends Component {
     });
   };
 
-  openSubModal = () => {
-    this.setState({
-      isSubOpen: true
-    });
-  };
-
-  hideSubModal = () => {
-    this.setState({
-      isSubOpen: false
-    });
-  };
-
   handleSubmit(e){
     if(this.refs.title.value === ''){
       alert('Een naam is vereist');
@@ -68,7 +56,7 @@ class AddApplication extends Component {
     });
     return (
       <div>
-        <button className='btn btn-success tab-margin' onClick={this.openModal}><span className="glyphicon glyphicon-plus"></span> Voeg WBSO-aanvraag toe</button>
+        <button className='btn btn-success pull-right' onClick={this.openModal}><span className="glyphicon glyphicon-plus"></span></button>
         <Modal isOpen={this.state.isOpen} size='modal-lg' onRequestHide={this.hideModal}>
           <ModalHeader>
             <ModalClose onClick={this.hideModal}/>

@@ -2,31 +2,14 @@ import React, { Component } from 'react';
 import CircularStatusIndicator from 'react-npm-circular-status-indicator';
 import AddCost from '../Cost/AddCost';
 import AddExpenditure from '../Expenditure/AddExpenditure';
+import ProjectItemEdit from './ProjectItemEdit';
 import AddTime from '../Time/AddTime';
-import axios from 'axios';
-import Api from '../../Utils/Api';
 
 class ProjectItem extends Component {
   constructor(){
     super();
     this.state = {
     }
-  }
-
-  handleDelete(){
-    let token = Api.getToken();
-    let nid = this.props.project.Nid;
-    axios({
-      method: 'delete',
-      url: '?q=api/node/' + nid +'.json',
-      headers: {'X-CSRF-Token': token},
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
   }
 
   calculateCostSavingPercentage(){
@@ -128,7 +111,7 @@ class ProjectItem extends Component {
                 <div className="panel-heading">Status Kosten <span className="badge">{this.props.project.field_totaal_kosten}</span></div>
                 <div className="panel-body">
                   <CircularStatusIndicator textLabel={this.calculateCostSavingCash()}>{this.calculateCostSavingPercentage()}</CircularStatusIndicator>
-                  <AddCost></AddCost>
+                  <AddCost project={this.props.project}></AddCost>
                 </div>
               </div>
             </div>
@@ -137,7 +120,7 @@ class ProjectItem extends Component {
                 <div className="panel-heading">Status uitgaven <span className="badge">{this.props.project.field_totaal_uitgaven}</span></div>
                 <div className="panel-body">
                   <CircularStatusIndicator textLabel={this.calculateExpenditureSavingCash()}>{this.calculateExpenditureSavingPercentage()}</CircularStatusIndicator>
-                  <AddExpenditure></AddExpenditure>
+                  <AddExpenditure project={this.props.project}></AddExpenditure>
                 </div>
               </div>
             </div>
@@ -146,8 +129,7 @@ class ProjectItem extends Component {
           <button className="btn btn-warning pull-left margin-button" type="button">Geplande einddatum: <span className="badge">{this.props.project.field_geplande_einddatum}</span></button>
           <button className="btn btn-info pull-left margin-button" type="button">Werkelijke kosten: <span className="badge">{this.props.project.field_werkelijke_kosten}</span></button>
           <button className="btn btn-primary pull-left margin-button" type="button">WBSO Goedgekeurd: <span className="badge">{this.props.project.field_wbso_status_ontvangen}</span></button>
-          <button className="btn btn-danger pull-right" onClick={this.handleDelete.bind(this, this.props.project.Nid)}><span className="glyphicon glyphicon-remove"></span></button>
-          <button className="btn btn-default pull-right margin-button"><span className="glyphicon glyphicon-pencil"></span> Bewerken</button>
+          <div className="pull-right"><ProjectItemEdit project={this.props.project} entities={this.props.entities}/></div>
         </div>
       </div>
     );

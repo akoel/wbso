@@ -1,45 +1,27 @@
 import React, {Component} from 'react';
-import uuid from 'uuid';
 import { Modal, ModalHeader, ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
-import { Tooltip, ButtonToolbar, Button, OverlayTrigger } from 'react-bootstrap';
+import { Button, Tooltip, ButtonToolbar, OverlayTrigger } from 'react-bootstrap';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
+import InlineEdit from 'react-edit-inline';
 import Api from '../../Utils/Api';
 
-class AddExpenditure extends Component {
+class CostItem extends Component {
   constructor(){
     super();
     this.state = {
-      newExpenditure: {},
+      newCost: {},
       isOpen: false,
       isSubOpen: false,
       startDatePayment: moment().subtract(29, 'days'),
       startDateUse: moment().subtract(29, 'days'),
-      factuurbedrag: '0',
-      percentage: '0',
-      bedrag: '0',
-      disable: '',
     }
   }
-
-  componentWillMount(){
-    this.checkDisable();
-  }
-
-  checkDisable(){
-    if (this.props.project.field_werkelijke_kosten === 'Nee') {
-      this.setState ({
-        disable: 'disabled',
-      })
-    }
-  };
 
   openModal = () => {
-    if (this.props.project.field_werkelijke_kosten === 'Ja') {
-      this.setState({
-        isOpen: true
-      });
-    }
+    this.setState({
+      isOpen: true
+    });
   };
 
   hideModal = () => {
@@ -61,28 +43,30 @@ class AddExpenditure extends Component {
   }
 
   handleSubmit(e){
-    e.preventDefault();
-    this.setState({ newExpenditure: {
-      type: "uitgave",
+    this.setState({ newCost: {
+      type: "kostenpost",
       language: "und",
-      title: uuid.v4(),
       field_referentie_project: {und:[{target_id:this.props.project.title}]},
       field_bedrag: {und:[{value:this.refs.bedrag.value}]},
       field_betaaldatum: {und:[{value:{date:this.state.startDatePayment.format('DD-MM-YYYY')}}]},
       field_datum: {und:[{value:{date:this.state.startDateUse.format('DD-MM-YYYY')}}]},
-      field_factuurbedrag:{und:[{value:this.refs.factuurbedrag.value}]},
       field_kenmerk:{und:[{value:this.refs.kenmerk.value}]},
       field_omschrijving:{und:[{value:this.refs.omschrijving.value}]},
-      field_percentage:{und:[{value:this.refs.percentage.value}]},
     }}, function(){
-      Api.postExpenditure(this.state.newExpenditure);
+      Api.postCost(this.state.newCost);
     });
+    e.preventDefault();
+    this.hideModal();
+  }
+
+  handleDelete(Nid){
+    Api.deleteProject(Nid);
     this.hideModal();
   }
 
   render() {
     const tooltip = (
-      <Tooltip id="tooltip"><strong>Uitgaven toevoegen</strong> Klik hier om uitgaven aan dit WBSO project toe te voegen</Tooltip>
+      <Tooltip id="tooltip"><strong>Kosten toevoegen</strong> Klik hier om kosten voor dit WBSO project toe te voegen</Tooltip>
     );
     let labelPayment = this.state.startDatePayment.format('DD-MM-YYYY');
     let labelUse = this.state.startDateUse.format('DD-MM-YYYY');
@@ -101,36 +85,19 @@ class AddExpenditure extends Component {
       <div>
         <ButtonToolbar>
           <OverlayTrigger placement="left" overlay={tooltip}>
-            <button className={"btn btn-success pull-right " + this.state.disable} onClick={this.openModal}><span className="glyphicon glyphicon-plus"></span></button>
+            <button className="btn btn-default pull-right" onClick={this.openModal}><span className="glyphicon glyphicon-pencil"></span> Bewerken</button>
           </OverlayTrigger>
         </ButtonToolbar>
         <Modal isOpen={this.state.isOpen} size='modal-lg' onRequestHide={this.hideModal}>
           <form onSubmit={this.handleSubmit.bind(this)}>
             <ModalHeader>
               <ModalClose onClick={this.hideModal}/>
-              <ModalTitle>Een WBSO uitgave toevoegen</ModalTitle>
+              <ModalTitle>Een WBSO kostenpost toevoegen</ModalTitle>
             </ModalHeader>
             <ModalBody>
               <div className="table-responsive">
                 <table className="table table-striped">
                   <tbody>
-                    <tr>
-                      <td><label>Factuurbedrag:</label></td><td>
-                        <div className="input-group">
-                          <div className="input-group-addon">€</div>
-                          <input type="text" className="form-control" ref="factuurbedrag" placeholder="Bedrag"></input>
-                          <div className="input-group-addon">.00</div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><label>Percentage:</label></td><td>
-                        <div className="input-group">
-                          <input type="text" className="form-control" ref="percentage" placeholder="Percentage"></input>
-                          <div className="input-group-addon">%</div>
-                        </div>
-                      </td>
-                    </tr>
                     <tr>
                       <td><label>Bedrag:</label></td><td>
                         <div className="input-group">
@@ -161,30 +128,30 @@ class AddExpenditure extends Component {
                       </td>
                     </tr>
                     <tr>
-                      <td><label>Datum ingebruikname: <span className="badge">Verplicht</span></label></td><td>
-                      <div className="form-group">
-                        <DatetimeRangePicker singleDatePicker showDropdowns locale={locale} startDate={this.state.startDateUse} onEvent={this.handleEventUse.bind(this)}>
-                          <Button className="selected-date-range-btn form-control">
-                            <div className="pull-left">
-                              <i className="fa fa-calendar"/>
-                              &nbsp;
-                              <span>
-                                {labelUse}
-                              </span>
-                            </div>
-                            <div className="pull-right">
-                              <i className="fa fa-angle-down"/>
-                            </div>
-                          </Button>
-                        </DatetimeRangePicker>
-                      </div>
+                      <td><label>Datum kosten gemaakt: <span className="badge">Verplicht</span></label></td><td>
+                        <div className="form-group">
+                          <DatetimeRangePicker singleDatePicker showDropdowns locale={locale} startDate={this.state.startDateUse} onEvent={this.handleEventUse.bind(this)}>
+                            <Button className="selected-date-range-btn form-control">
+                              <div className="pull-left">
+                                <i className="fa fa-calendar"/>
+                                &nbsp;
+                                <span>
+                                  {labelUse}
+                                </span>
+                              </div>
+                              <div className="pull-right">
+                                <i className="fa fa-angle-down"/>
+                              </div>
+                            </Button>
+                          </DatetimeRangePicker>
+                        </div>
                       </td>
                     </tr>
                     <tr>
                       <td><label>Kenmerk:</label></td><td><input type="text" className="form-control" ref="kenmerk" placeholder="Een uniek kenmerk"></input></td>
                     </tr>
                     <tr>
-                      <td><label>Omschrijving:</label></td><td><textarea type="text" className="form-control" rows="5" ref="omschrijving" placeholder="Een duidelijke en korte omschrijving van het de kostenpost..."></textarea></td>
+                      <td><label>Omschrijving:</label></td><td><textarea type="text" className="form-control" rows="5" ref="omschrijving" placeholder="Een duidelijke en korte omschrijving van de kostenpost..."></textarea></td>
                     </tr>
                   </tbody>
                 </table>
@@ -205,4 +172,4 @@ class AddExpenditure extends Component {
   }
 }
 
-export default AddExpenditure;
+export default CostItem;

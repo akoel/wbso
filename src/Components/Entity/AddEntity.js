@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import { Modal, ModalHeader, ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
 import Api from '../../Utils/Api';
 
@@ -33,20 +32,7 @@ class AddEntity extends Component {
       field_rsin:{und:[{value:this.refs.field_rsin.value}]},
       field_kvk_nummer:{und:[{value:this.refs.field_kvk_nummer.value}]},
     }}, function(){
-      var token = Api.getToken();
-      var newEntity = this.state.newEntity;
-      axios({
-        method: 'post',
-        url: '?q=api/node.json',
-        headers: {'X-CSRF-Token': token},
-        data: newEntity,
-      })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+      Api.postEntity(this.state.newEntity);
     });
     e.preventDefault();
     this.hideModal();

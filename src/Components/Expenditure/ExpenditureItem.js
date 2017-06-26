@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import uuid from 'uuid';
 import { Modal, ModalHeader, ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
 import { Tooltip, ButtonToolbar, Button, OverlayTrigger } from 'react-bootstrap';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
+import InlineEdit from 'react-edit-inline';
 import Api from '../../Utils/Api';
 
-class AddExpenditure extends Component {
+class ExpenditureItem extends Component {
   constructor(){
     super();
     this.state = {
@@ -18,28 +18,13 @@ class AddExpenditure extends Component {
       factuurbedrag: '0',
       percentage: '0',
       bedrag: '0',
-      disable: '',
     }
   }
-
-  componentWillMount(){
-    this.checkDisable();
-  }
-
-  checkDisable(){
-    if (this.props.project.field_werkelijke_kosten === 'Nee') {
-      this.setState ({
-        disable: 'disabled',
-      })
-    }
-  };
 
   openModal = () => {
-    if (this.props.project.field_werkelijke_kosten === 'Ja') {
-      this.setState({
-        isOpen: true
-      });
-    }
+    this.setState({
+      isOpen: true
+    });
   };
 
   hideModal = () => {
@@ -63,20 +48,26 @@ class AddExpenditure extends Component {
   handleSubmit(e){
     e.preventDefault();
     this.setState({ newExpenditure: {
-      type: "uitgave",
-      language: "und",
-      title: uuid.v4(),
-      field_referentie_project: {und:[{target_id:this.props.project.title}]},
-      field_bedrag: {und:[{value:this.refs.bedrag.value}]},
-      field_betaaldatum: {und:[{value:{date:this.state.startDatePayment.format('DD-MM-YYYY')}}]},
-      field_datum: {und:[{value:{date:this.state.startDateUse.format('DD-MM-YYYY')}}]},
-      field_factuurbedrag:{und:[{value:this.refs.factuurbedrag.value}]},
-      field_kenmerk:{und:[{value:this.refs.kenmerk.value}]},
-      field_omschrijving:{und:[{value:this.refs.omschrijving.value}]},
-      field_percentage:{und:[{value:this.refs.percentage.value}]},
+      node: {
+        type: "uitgave",
+        language: "und",
+        field_referentie_project: {und:[{target_id:this.props.project.title}]},
+        field_bedrag: {und:[{value:this.refs.bedrag.value}]},
+        field_betaaldatum: {und:[{value:{date:this.state.startDatePayment.format('DD-MM-YYYY')}}]},
+        field_datum: {und:[{value:{date:this.state.startDateUse.format('DD-MM-YYYY')}}]},
+        field_factuurbedrag:{und:[{value:this.refs.factuurbedrag.value}]},
+        field_kenmerk:{und:[{value:this.refs.kenmerk.value}]},
+        field_omschrijving:{und:[{value:this.refs.omschrijving.value}]},
+        field_percentage:{und:[{value:this.refs.percentage.value}]},
+      }
     }}, function(){
       Api.postExpenditure(this.state.newExpenditure);
     });
+    this.hideModal();
+  }
+
+  handleDelete(Nid){
+    Api.deleteProject(Nid);
     this.hideModal();
   }
 
@@ -101,7 +92,7 @@ class AddExpenditure extends Component {
       <div>
         <ButtonToolbar>
           <OverlayTrigger placement="left" overlay={tooltip}>
-            <button className={"btn btn-success pull-right " + this.state.disable} onClick={this.openModal}><span className="glyphicon glyphicon-plus"></span></button>
+            <button className="btn btn-default pull-right" onClick={this.openModal}><span className="glyphicon glyphicon-pencil"></span> Bewerken</button>
           </OverlayTrigger>
         </ButtonToolbar>
         <Modal isOpen={this.state.isOpen} size='modal-lg' onRequestHide={this.hideModal}>
@@ -205,4 +196,4 @@ class AddExpenditure extends Component {
   }
 }
 
-export default AddExpenditure;
+export default ExpenditureItem;

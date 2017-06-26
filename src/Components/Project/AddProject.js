@@ -3,7 +3,6 @@ import { Modal, ModalHeader, ModalTitle, ModalClose, ModalBody, ModalFooter } fr
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
 import { Button } from 'react-bootstrap';
-import axios from 'axios';
 import Api from '../../Utils/Api';
 
 class AddProject extends Component {
@@ -69,20 +68,7 @@ class AddProject extends Component {
       field_begrote_uitgaven:{und:[{value:this.refs.begrote_uitgaven.value}]},
       field_begrote_manuren:{und:[{value:this.refs.begrote_uren.value}]},
     }}, function(){
-      var token = Api.getToken();
-      var newProject = this.state.newProject;
-      axios({
-        method: 'post',
-        url: '?q=api/node.json',
-        headers: {'X-CSRF-Token': token},
-        data: newProject,
-      })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+      Api.postProject(this.state.newProject);
     });
     e.preventDefault();
     this.hideModal();
@@ -115,7 +101,7 @@ class AddProject extends Component {
                       <td><label>Naam:</label></td><td><input className="form-control" type="text" ref="naam" placeholder="Project X"></input></td>
                     </tr>
                     <tr>
-                      <td><label>Entiteit:</label></td><td><select className="form-control" ref="entity_picker_project">{entityPickerProject}</select></td>
+                      <td><label>Entiteit: <span className="badge">Verplicht</span></label></td><td><select className="form-control" ref="entity_picker_project">{entityPickerProject}</select></td>
                     </tr>
                     <tr>
                       <td><label>Omschrijving:</label></td><td><textarea className="form-control" type="text" rows="5" ref="project_omschrijving" placeholder="Een duidelijke en korte omschrijving van het project..."></textarea></td>
@@ -172,7 +158,7 @@ class AddProject extends Component {
               </div>
             </ModalBody>
             <ModalFooter>
-              <button className='btn btn-default' onClick={this.hideModal}>
+              <button className='btn btn-default' onClick={e=>{e.preventDefault();this.hideModal()}}>
                 <span className="glyphicon glyphicon-remove"></span> Annuleren
               </button>
               <button className='btn btn-success' type="submit" value="Indienen">

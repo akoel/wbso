@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import Projects from './Project/Projects';
 import AddProject from './Project/AddProject';
-import Applications from './Application/Applications';
-import AddApplication from './Application/AddApplication';
+import BigCalendar from './BigCalendar';
 import { Tabs, Tab } from 'react-bootstrap';
 
 class Tabsfront extends Component {
@@ -22,14 +21,10 @@ class Tabsfront extends Component {
       <Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="controlled-tab-example">
         <Tab eventKey={1} title="Projecten">
           <AddProject entities={this.props.entities} />
-          <Projects projects={this.props.projects} />
+          <Projects projects={this.props.projects} entities={this.props.entities} />
         </Tab>
-        <Tab eventKey={2} title="Aanvragen">
-          <AddApplication />
-          <Applications applications={this.props.applications} />
-        </Tab>
-        <Tab eventKey={3} title="Administratie">
-          <Applications applications={this.props.applications} />
+        <Tab eventKey={2} title="Administratie">
+          <BigCalendar projects={this.props.projects} employees={this.props.employees} />
         </Tab>
       </Tabs>
     );

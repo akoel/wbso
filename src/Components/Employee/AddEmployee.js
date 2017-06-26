@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import { Modal, ModalHeader, ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
 import Api from '../../Utils/Api';
 
@@ -31,7 +30,7 @@ class AddEmployee extends Component {
       mail: this.refs.email.value,
       pass: "wachtwoord",
       pass2: "wachtwoord",
-      status: "0",
+      status: "1",
       roles:["4"],
       field_voornaam: {und:[{value:this.refs.voornaam.value}]},
       field_achternaam: {und:[{value:this.refs.achternaam.value}]},
@@ -39,20 +38,7 @@ class AddEmployee extends Component {
       field_functie: {und:[{value:this.refs.functie.value}]},
       field_referentie_entiteit: {und:[{target_id:this.refs.entity_picker_employee.value}]},
     }}, function(){
-      var token = Api.getToken();
-      var newEmployee = this.state.newEmployee;
-      axios({
-        method: 'post',
-        url: '?q=api/user.json',
-        headers: {'X-CSRF-Token': token},
-        data: newEmployee,
-      })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+      Api.postEmployee(this.state.newEmployee);
     });
     e.preventDefault();
     this.hideModal();
@@ -82,7 +68,7 @@ class AddEmployee extends Component {
                       <td><label>Achternaam:</label></td><td><input className="form-control" type="text" ref="achternaam" placeholder="Van den Broek"></input></td>
                     </tr>
                     <tr>
-                      <td><label>E-mail:</label></td><td><input className="form-control" type="text" ref="email" placeholder="naam@provider.nl"></input></td>
+                      <td><label>E-mail: <span className="badge">Verplicht</span></label></td><td><input className="form-control" type="text" ref="email" placeholder="naam@provider.nl"></input></td>
                     </tr>
                     <tr>
                       <td><label>Burgerservicenummer:</label></td><td><input className="form-control" type="text" ref="burgerservicenummer" placeholder="12345678"></input></td>
@@ -91,14 +77,14 @@ class AddEmployee extends Component {
                       <td><label>Functie:</label></td><td><input className="form-control" type="text" ref="functie" placeholder="Accountmanager"></input></td>
                     </tr>
                     <tr>
-                      <td><label>In dienst bij:</label></td><td><select className="form-control" ref="entity_picker_employee">{entityPickerEmployee}</select></td>
+                      <td><label>In dienst bij: <span className="badge">Verplicht</span></label></td><td><select className="form-control" ref="entity_picker_employee">{entityPickerEmployee}</select></td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </ModalBody>
             <ModalFooter>
-              <button className='btn btn-default' onClick={this.hideModal}>
+              <button className='btn btn-default' onClick={e=>{e.preventDefault();this.hideModal()}}>
                 <span className="glyphicon glyphicon-remove"></span> Annuleren
               </button>
               <button className='btn btn-success' type="submit" value="Indienen">
